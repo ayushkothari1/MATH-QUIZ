@@ -1,91 +1,88 @@
-*{
-    padding: 0;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    box-sizing: border-box;
+* {
+  padding: 0;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
 }
 
-.container{
-    background: rgb(11, 11, 75);
-    width: 100%;
-    height: 100%;
-    min-height: 700px;
-   
-   
+.container {
+  background: rgb(11, 11, 75);
+  width: 100%;
+  height: 100%;
+  min-height: 700px;
 }
 
-.game{
-    background: rgb(248, 245, 245);
-    width: 65%;
-    height: 550px;
-    border-radius: 20px;
-    position: absolute;
-    top: 90px;
-    left: 190px;
-
+.game {
+  background: rgb(248, 245, 245);
+  width: 65%;
+  height: 550px;
+  border-radius: 20px;
+  position: absolute;
+  top: 90px;
+  left: 190px;
 }
 
-.game h1{
-    height: 75px;
-    margin: 30px 30px;
-    border-bottom: 2px solid black;
-    color: rgb(13, 13, 96);
+.game h1 {
+  height: 75px;
+  margin: 30px 30px;
+  border-bottom: 2px solid black;
+  color: rgb(13, 13, 96);
 }
 
-.quiz{
-    /* background: aqua; */
-    margin: 0 30px;
-    height: 60%;
+.quiz {
+  /* background: aqua; */
+  margin: 0 30px;
+  height: 60%;
 }
 
-#question{
-    color: rgb(8, 8, 57);
-    font-size: 35px;
+#question {
+  color: rgb(8, 8, 57);
+  font-size: 35px;
 }
 
-#answer-buttons{
-    /* background: wheat; */
-    height: 90%;
+#answer-buttons {
+  /* background: wheat; */
+  height: 90%;
 }
 
-.btn{
-    width: 100%;
-    text-align: left;
-    font-size: 30px;
-    padding-left: 14px;
-    margin-top: 25px;
-    border-radius: 5px;
-    border: 1px solid black;
+.btn {
+  width: 100%;
+  text-align: left;
+  font-size: 30px;
+  padding-left: 14px;
+  margin-top: 25px;
+  border-radius: 5px;
+  border: 1px solid black;
 }
 
-.btn:hover:not([disabled]){
-    background: black;
-    color: white;
-    cursor: pointer;
+.btn:hover:not([disabled]) {
+  background: black;
+  color: white;
+  cursor: pointer;
 }
 
-.btn:disabled{
-    cursor: no-drop;
+.btn:disabled {
+  cursor: no-drop;
 }
 
-#next-btn{
-    background: #001e4d;
-    color: #fff;
-    font-weight: 500;
-    width: 150px;
-    border: 0;
-    padding: 10px;
-    /* margin: 20px auto 0; */
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 40%;
-    display: none;
+#next-btn {
+  background: #001e4d;
+  color: #fff;
+  font-weight: 500;
+  width: 150px;
+  border: 0;
+  padding: 10px;
+  /* margin: 20px auto 0; */
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 40%;
+  display: none;
 }
 
-.correct{
-    background: #9aeabc;
+.correct {
+  background: #9aeabc;
 }
 
-.incorrect{
-    background: #ff9393;
+.incorrect {
+  background: #ff9393;
 }
