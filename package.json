@@ -1,0 +1,16 @@
+{
+  "name": "basic-math-quiz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A responsive math quiz with dynamically generated questions.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "build": "node --check server.js && node --check script.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

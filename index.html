@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Math Quiz - app</title>
+    <meta name="theme-color" content="#0b0b4b" />
+    <title>Simple Math Quiz</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -11,18 +12,50 @@
       <div class="game">
         <h1>Simple Math Quiz</h1>
         <div class="quiz">
-          <h2 id="question">1. what is value of pi?</h2>
-          <div id="answer-buttons">
-            <button class="btn">4.14</button>
-            <button class="btn">3.64</button>
-            <button class="btn">1.14</button>
-            <button class="btn">3.04</button>
+          <form id="settings" class="settings">
+            <label>Operation
+              <select id="category" name="category">
+                <option value="mixed">Mixed operations</option>
+                <option value="addition">Addition</option>
+                <option value="subtraction">Subtraction</option>
+                <option value="multiplication">Multiplication</option>
+                <option value="division">Division</option>
+              </select>
+            </label>
+            <label>Difficulty
+              <select id="difficulty" name="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </label>
+            <label>Questions
+              <select id="question-count" name="count">
+                <option>5</option><option selected>10</option><option>15</option><option>20</option>
+              </select>
+            </label>
+            <button class="start-btn" type="submit">Start quiz</button>
+          </form>
+          <div id="quiz-panel" hidden>
+            <div class="progress-row"><span id="progress">Question 1 of 10</span><span id="score">Score: 0</span></div>
+            <div class="progress-track" aria-hidden="true"><div id="progress-fill"></div></div>
+            <h2 id="question" aria-live="polite"></h2>
+            <form id="answer-form" class="answer-form">
+              <label for="answer">Your answer</label>
+              <div class="answer-row">
+                <input id="answer" name="answer" type="number" inputmode="decimal" step="1" required autocomplete="off" />
+                <button id="submit-answer" type="submit">Check answer</button>
+              </div>
+            </form>
+            <p id="feedback" role="status" aria-live="polite"></p>
+            <p id="error" class="error" role="alert"></p>
+            <button id="next-btn" type="button" hidden>Next question</button>
           </div>
-          <button id="next-btn">Next</button>
+          <p id="loading" role="status" hidden>Getting your question…</p>
         </div>
       </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>

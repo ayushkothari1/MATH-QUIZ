@@ -1,184 +1,146 @@
-const questions = [
-  {
-    question: "What is the value of 5 + 3 × 2?",
-    answers: [
-      { text: "16", correct: false },
-      { text: "11", correct: true },
-      { text: "13", correct: false },
-      { text: "8", correct: false },
-    ],
-  },
-  {
-    question: "What is the square root of 49?",
-    answers: [
-      { text: "6", correct: false },
-      { text: "7", correct: true },
-      { text: "9", correct: false },
-      { text: "5", correct: false },
-    ],
-  },
-  {
-    question: "Which of the following is the solution to 2x + 4 = 12?",
-    answers: [
-      { text: "x = 6", correct: false },
-      { text: "x = 4", correct: true },
-      { text: "x = 2", correct: false },
-      { text: "x = 8", correct: false },
-    ],
-  },
-  {
-    question: "What is the result of 15 ÷ 3 × 5?",
-    answers: [
-      { text: "15", correct: false },
-      { text: "20", correct: false },
-      { text: "30", correct: false },
-      { text: "25", correct: true },
-    ],
-  },
-  {
-    question: "What is 25% of 200?",
-    answers: [
-      { text: "50", correct: true },
-      { text: "25", correct: false },
-      { text: "75", correct: false },
-      { text: "100", correct: false },
-    ],
-  },
-  {
-    question:
-      "Which of the following is the perimeter of a rectangle with length 8 cm and width 5 cm?",
-    answers: [
-      { text: "30 cm", correct: false },
-      { text: "16 cm", correct: false },
-      { text: "26 cm", correct: true },
-      { text: "40 cm", correct: false },
-    ],
-  },
-  {
-    question: "What is the value of 3^3?",
-    answers: [
-      { text: "27", correct: true },
-      { text: "9", correct: false },
-      { text: "18", correct: false },
-      { text: "33", correct: false },
-    ],
-  },
-  {
-    question:
-      "If a triangle has sides of 5 cm, 12 cm, and 13 cm, what is the area of the triangle?",
-    answers: [
-      { text: "30 cm²", correct: true },
-      { text: "25 cm²", correct: false },
-      { text: "60 cm²", correct: false },
-      { text: "60 cm", correct: false },
-    ],
-  },
-  {
-    question: "How many degrees are in a straight angle?",
-    answers: [
-      { text: "180°", correct: true },
-      { text: "90°", correct: false },
-      { text: "360°", correct: false },
-      { text: "45°", correct: false },
-    ],
-  },
-  {
-    question: "What is the value of pi (π) to two decimal places?",
-    answers: [
-      { text: "3.14", correct: true },
-      { text: "3.16", correct: false },
-      { text: "3.12", correct: false },
-      { text: "3.10", correct: false },
-    ],
-  },
-];
-const container = document.querySelector(".container");
+const settingsForm = document.querySelector("#settings");
+const quizPanel = document.querySelector("#quiz-panel");
 const questionElement = document.querySelector("#question");
-const answerButtons = document.querySelector("#answer-buttons");
+const answerForm = document.querySelector("#answer-form");
+const answerInput = document.querySelector("#answer");
+const submitButton = document.querySelector("#submit-answer");
 const nextButton = document.querySelector("#next-btn");
+const feedback = document.querySelector("#feedback");
+const errorMessage = document.querySelector("#error");
+const loadingMessage = document.querySelector("#loading");
+const progressElement = document.querySelector("#progress");
+const progressFill = document.querySelector("#progress-fill");
+const scoreElement = document.querySelector("#score");
+const isLocalPreview = window.location.protocol === "file:" ||
+  (["localhost", "127.0.0.1"].includes(window.location.hostname) && window.location.port !== "3000");
+const apiBase = window.MATH_QUIZ_API_URL || (isLocalPreview ? "http://localhost:3000" : "");
 
-let currentQuestionIndex = 0;
+async function apiFetch(path, options) {
+  const response = await fetch(`${apiBase}${path}`, options);
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    throw new Error("The API did not return JSON. Start the backend with npm start.");
+  }
+  const data = await response.json();
+  return { response, data };
+}
+
+let questionCount = 10;
+let questionNumber = 0;
 let score = 0;
+let currentQuestionId = null;
+let answered = false;
 
-function startQuiz() {
-  currentQuestionIndex = 0;
+function showError(message) {
+  errorMessage.textContent = message;
+}
+
+async function requestQuestion() {
+  loadingMessage.hidden = false;
+  quizPanel.hidden = false;
+  answerForm.hidden = true;
+  nextButton.hidden = true;
+  showError("");
+  feedback.textContent = "";
+  feedback.className = "";
+  const params = new URLSearchParams({
+    category: document.querySelector("#category").value,
+    difficulty: document.querySelector("#difficulty").value,
+  });
+
+  try {
+    const { response, data } = await apiFetch(`/api/question?${params}`);
+    if (!response.ok) throw new Error(data.error || "Could not get a question.");
+    currentQuestionId = data.id;
+    questionElement.textContent = data.question;
+    questionNumber += 1;
+    progressElement.textContent = `Question ${questionNumber} of ${questionCount}`;
+    progressFill.style.width = `${((questionNumber - 1) / questionCount) * 100}%`;
+    answerInput.value = "";
+    answerForm.hidden = false;
+    answerInput.focus();
+  } catch (error) {
+    showError(`${error.message} Check the server connection and try again.`);
+    questionElement.textContent = "We couldn't load your question.";
+    nextButton.textContent = "Try again";
+    nextButton.hidden = false;
+  } finally {
+    loadingMessage.hidden = true;
+  }
+}
+
+function startQuiz(event) {
+  if (event) event.preventDefault();
+  questionCount = Number(document.querySelector("#question-count").value);
+  questionNumber = 0;
   score = 0;
-  nextButton.innerHTML = "Next";
-  showQuestion();
+  currentQuestionId = null;
+  answered = false;
+  scoreElement.textContent = "Score: 0";
+  progressFill.style.width = "0%";
+  nextButton.textContent = "Next question";
+  settingsForm.hidden = true;
+  quizPanel.hidden = false;
+  requestQuestion();
 }
 
-function showQuestion() {
-  resetState();
-  let currentQuestion = questions[currentQuestionIndex];
-  let questionNo = currentQuestionIndex + 1;
-  questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+settingsForm.addEventListener("submit", startQuiz);
 
-  currentQuestion.answers.forEach((answer) => {
-    const button = document.createElement("button");
-    button.innerHTML = answer.text;
-    button.classList.add("btn");
-    answerButtons.appendChild(button);
-    if (answer.correct) {
-      button.dataset.correct = answer.correct;
+answerForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (answered || !currentQuestionId) return;
+  const answer = Number(answerInput.value);
+  if (!Number.isFinite(answer)) {
+    showError("Enter a valid number for your answer.");
+    return;
+  }
+
+  submitButton.disabled = true;
+  showError("");
+  try {
+    const { response, data: result } = await apiFetch("/api/answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ questionId: currentQuestionId, answer }),
+    });
+    if (!response.ok) throw new Error(result.error || "Could not check your answer.");
+    answered = true;
+    if (result.correct) {
+      score += 1;
+      feedback.textContent = "That's right! Great work.";
+      feedback.className = "correct";
+    } else {
+      feedback.textContent = "Not quite. Keep going, you'll get the next one!";
+      feedback.className = "incorrect";
     }
-    button.addEventListener("click", selectAnswer);
-  });
-}
-
-function resetState() {
-  nextButton.style.display = "none";
-  while (answerButtons.firstChild) {
-    answerButtons.removeChild(answerButtons.firstChild);
+    scoreElement.textContent = `Score: ${score}`;
+    progressFill.style.width = `${(questionNumber / questionCount) * 100}%`;
+    answerForm.hidden = true;
+    nextButton.textContent = questionNumber === questionCount ? "See results" : "Next question";
+    nextButton.hidden = false;
+    nextButton.focus();
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    submitButton.disabled = false;
   }
-}
-startQuiz();
-
-function selectAnswer(e) {
-  const selectBtn = e.target;
-  const isCorrect = selectBtn.dataset.correct === "true";
-  if (isCorrect) {
-    selectBtn.classList.add("correct");
-    score++;
-  } else {
-    selectBtn.classList.add("incorrect");
-  }
-  Array.from(answerButtons.children).forEach((button) => {
-    if (button.dataset.correct === "true") {
-      button.classList.add("correct");
-    }
-    button.disabled = true;
-  });
-  nextButton.style.display = "block";
-}
-
-function showScore() {
-  resetState();
-  if (score >= 9) {
-    questionElement.innerHTML = `Excellent! You scored ${score} out of ${questions.length}!`;
-  } else if (score >= 6) {
-    questionElement.innerHTML = `Nice! You scored ${score} out of ${questions.length}!`;
-  } else if (score >= 4) {
-    questionElement.innerHTML = `Average! You scored ${score} out of ${questions.length}!`;
-  } else {
-    questionElement.innerHTML = `poor! You scored ${score} out of ${questions.length}!`;
-  }
-  nextButton.innerHTML = "Play Again";
-  nextButton.style.display = "block";
-}
-
-function handleNextButton() {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    showQuestion();
-  } else {
-    showScore();
-  }
-}
+});
 
 nextButton.addEventListener("click", () => {
-  if (currentQuestionIndex < questions.length) {
-    handleNextButton();
-  } else {
-    startQuiz();
+  if (!currentQuestionId && questionNumber === 0) return requestQuestion();
+  if (questionNumber < questionCount) {
+    answered = false;
+    requestQuestion();
+    return;
   }
+
+  questionElement.textContent = `You scored ${score} out of ${questionCount}. ${score === questionCount ? "Perfect score!" : "Nice work practicing!"}`;
+  progressElement.textContent = "Quiz complete";
+  progressFill.style.width = "100%";
+  feedback.textContent = "Choose your settings and start a fresh quiz whenever you're ready.";
+  feedback.className = "correct";
+  nextButton.hidden = true;
+  settingsForm.hidden = false;
+  settingsForm.querySelector(".start-btn").textContent = "Play again";
+  currentQuestionId = null;
 });
